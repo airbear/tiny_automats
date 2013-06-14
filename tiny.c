@@ -1,5 +1,5 @@
 #include "mylist.h"
-#define qwerty 3
+#define qwerty 4
 #define erty 2
 int tiny[qwerty*erty];
 
@@ -9,12 +9,13 @@ static unsigned int ar[qwerty][erty];
 
 /* Добавляет новое множество состояний, 
  * также надо проверять, было ли уже такое множество 
- * текущее множество - под индексом i, последнее - под j */
+ * текущее множество - под индексом i, последнее - под j 
+ * w - буква, по которой переходим*/
 int new_state_set(unsigned int i, unsigned int j, unsigned int w) {
 	struct state *pos;
 	unsigned int q_tmp;
 	list_for_each_entry(pos, &state_list[i], list) {
-		q_tmp = ar[pos->q][w];
+		q_tmp = tiny[pos->q * 2 + w];
 		if (!check_state(q_tmp, j+1))
 			state_add(j+1, q_tmp);
 	}
@@ -48,51 +49,33 @@ void init() {
 
 /* Считает ранг, возвращает его  */
 int range() {
-	
-
 	unsigned int i,j,k,l;
 	int flag;
 	int range = qwerty;
-	unsigned int w, current_set, stuff; 
+	unsigned int w, current, stuff; 
 	father[1] = 0;
-	current_set = 1;
+	current = 1;
 	stuff = 1;	//на последнее не пустое множество в массиве
-
-
-	/* преобразование массива tiny в массив ar, по которому считается ранг */
-	for(i=0; i<qwerty; i++) {
-		ar[i][0] = tiny[i*2];
-		ar[i][1] = tiny[i*2+1];
-	
-	}
 	/* Now, MAGIC! */
-
-mark:
-	while(current_set != 0) {
+	while(current != 0) {
 		flag = 0;
-		for (k=0; k<erty; k++) {
-			for (i=0; i<qwerty; i++) { // обходим по парам
-				if(pair_approved(k,current_set)) {
-					if(new_state_set(current_set, stuff, k)) {
-						stuff++;
-						pair_add(k,current_set);	
-						father[stuff] = current_set;
-						current_set = stuff;
-						flag = 1;
-						goto mark;
-					}
-				}
+		for(j=0; j<erty; j++) {
+			if(new_state_set(current, stuff,j)) {
+				stuff++;
+				father[stuff]=current;
+				flag = 1;
+				if(sizeof_set(stuff) < range)
+					range = sizeof_set(stuff);
+				if(range == 1)
+					goto mark;
 			}
 		}
-		if(!flag) {
-			current_set = father[current_set];
-		}
+		if(flag)
+			current++;
+		else
+			current = father[current];
 	}
-
-	for(i=1; i<LIST_SIZE; i++)
-		if(!list_empty(&state_list[i]))
-			if(sizeof_set(i) < range)
-				range = sizeof_set(i);
+mark:
 	return range;
 }
 
@@ -124,5 +107,6 @@ int main () {
 		//printf("\n");
 	}
 	printf("%d\n", 1);
+	return 0;
 }
 
