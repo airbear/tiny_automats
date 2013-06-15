@@ -57,7 +57,7 @@ int range() {
 	current = 1;
 	stuff = 1;	//на последнее не пустое множество в массиве
 	/* Now, MAGIC! */
-	while(current != 0) {
+	while(!list_empty(&state_list[current])) {
 		flag = 0;
 		for(j=0; j<erty; j++) {
 			if(new_state_set(current, stuff,j)) {
@@ -70,30 +70,32 @@ int range() {
 					goto mark;
 			}
 		}
-		if(flag)
+/*		if(flag)
 			current++;
 		else
 			current = father[current];
+			*/
+		current++;
 	}
 mark:
 	return range;
 }
 
 int main () {
+	
 	int i,flag;
 	int k = qwerty*erty-1; //последний индекс
 	for(i=0; i<qwerty*erty; i++)
 		tiny[i] = 0;
 	while(k != -1) {
 		flag = 1;
-		/*for(i=0; i<qwerty*erty; i++)
-			printf("%d ", tiny[i]);
-		*/
-/* счет ранга */
+		
+// счет ранга 
+	
 		init();
 		printf("%d\n", range());
 		cleanup();
-/*done */
+// done 
 		tiny[0]++;
 		for(i=0; i<=k-1; i++)
 			if((tiny[i] == qwerty) && (k!=0) ) {
@@ -107,6 +109,7 @@ int main () {
 		//printf("\n");
 	}
 	printf("%d\n", 1);
+	
 	return 0;
 }
 
